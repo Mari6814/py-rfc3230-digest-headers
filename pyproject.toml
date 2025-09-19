@@ -1,0 +1,60 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rfc3230-http-digest-headers"
+version = "0.1.0"
+description = "Implementation of the Digest HTTP headers according to RFC 3230."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+authors = [{ name = "Marian Plivelic", email = "marianplivelic@gmail.com" }]
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = [
+    "http",
+    "digest",
+    "rfc3230",
+    "headers",
+    "authentication",
+    "security",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Security",
+]
+
+[project.urls]
+Repository = "https://github.com/Mari6814/py-rfc3230-http-digest-headers"
+Documentation = "https://github.com/Mari6814/py-rfc3230-http-digest-headers"
+
+
+[dependency-groups]
+dev = ["coverage>=7.10.6", "pybadges>=3.0.1", "pytest>=8.4.2", "ruff>=0.13.0"]
+
+[tool.hatch.build]
+only-include = [
+    "rfc3230_digest_headers",
+    "README.md",
+    "LICENSE",
+    "pyproject.toml",
+]
+
+[tool.ruff]
+include = ["E", "F", "W", "C", "N", "B", "D", "I"]
+
+[tool.ruff.lint]
+ignore = [
+    # "E501", # line too long
+]

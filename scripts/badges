@@ -1,0 +1,14 @@
+#!/bin/env bash
+
+set -euo pipefail
+
+mkdir -p badges
+
+# Versions badge with Python versions that we run tests against
+uv run --with pybadges --with setuptools -m pybadges --left-text Python --right-color blue --right-text '3.10 | 3.11 | 3.12 | 3.13 | 3.14'  > badges/python-versions.svg
+
+# Coverage badge
+uv sync --dev --all-extras
+coverage run --source rfc3230_http_digest_headers --module pytest -v tests/
+COVERAGE_PERCENT=$(uv run -m coverage json --pretty-print -o - | jq '.totals.percent_covered_display' | tr -d '"%')
+uv run --with pybadges --with setuptools -m pybadges --left-text Coverage --right-color green --right-text "${COVERAGE_PERCENT}%" > badges/coverage.svg

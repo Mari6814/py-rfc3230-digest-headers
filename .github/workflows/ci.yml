@@ -1,0 +1,36 @@
+name: check formatting, lint and run tests
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'http_digest_headers/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ '3.10', '3.11', '3.12', '3.13', '3.14' ]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+      - name: Install dependencies
+        run: uv sync --dev --all-extras
+      - name: Check formatting with ruff
+        run: uv run -m ruff format --check rfc3230_digest_headers/ tests/
+      - name: Run ruff lint
+        run: uv run -m ruff check rfc3230_digest_headers/ tests/
+      - name: Run pytest
+        run: uv run -m pytest
