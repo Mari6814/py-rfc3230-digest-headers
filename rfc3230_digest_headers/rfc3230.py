@@ -1,10 +1,11 @@
-import hashlib
-import subprocess
-import shutil
 import base64
-
-from typing import NamedTuple, Sequence, Literal
+import hashlib
+import shutil
+import subprocess
+from collections.abc import Sequence
 from enum import Enum
+from typing import Literal, NamedTuple
+
 from .exceptions import (
     MalformedHeaderException,
     UnacceptableAlgorithmException,
@@ -74,8 +75,8 @@ class DigestHeaderAlgorithm(Enum):
             MalformedHeaderException: If the `Digest` header is malformed. E.g. missing `=` or empty algorithm or digest.
             UnacceptableAlgorithmException: If the `Digest` header contains an algorithm with a qvalue of 0.0.
             RuntimeError: If the `cksum` command is not found on the system or if the command fails when using UNIXCKSUM.
-        """
 
+        """
         if qvalues is None:
             qvalues = {
                 DigestHeaderAlgorithm.SHA256: None,
@@ -85,7 +86,8 @@ class DigestHeaderAlgorithm(Enum):
             request_headers.get("Digest")
             or request_headers.get("digest")
             or next(
-                (v for k, v in request_headers.items() if k.lower() == "digest"), None
+                (v for k, v in request_headers.items() if k.lower() == "digest"),
+                None,
             )  # Allow case-insensitive header names
         )
         if digest_header is None:
@@ -106,22 +108,24 @@ class DigestHeaderAlgorithm(Enum):
             computed_digest = alg.compute(instance)
             if verify_type == "any" and provided_digest == computed_digest:
                 return (True, None)
-            elif verify_type == "all" and provided_digest != computed_digest:
+            if verify_type == "all" and provided_digest != computed_digest:
                 return (
                     False,
                     HeaderShouldBeAdded(
-                        "Want-Digest", _make_wants_digest_header(qvalues)
+                        "Want-Digest",
+                        _make_wants_digest_header(qvalues),
                     ),
                 )
         if verify_type == "all":
             # Fail if not all required algorithms have been provided and verified.
             if set(alg for alg, qvalue in qvalues.items() if qvalue != 0.0) != set(
-                provided_digests.keys()
+                provided_digests.keys(),
             ):
                 return (
                     False,
                     HeaderShouldBeAdded(
-                        "Want-Digest", _make_wants_digest_header(qvalues)
+                        "Want-Digest",
+                        _make_wants_digest_header(qvalues),
                     ),
                 )
             return (True, None)
@@ -143,6 +147,7 @@ class DigestHeaderAlgorithm(Enum):
 
         Returns:
             A `HeaderShouldBeAdded` object containing the `Digest` header name and its value. Add this header to your request.
+
         """
         header_value = ",".join(
             f"{alg.value}={alg.compute(instance)}" for alg in algorithms
@@ -171,8 +176,8 @@ class DigestHeaderAlgorithm(Enum):
             MalformedHeaderException: If the `Want-Digest` header is malformed.
             RuntimeError: If the `cksum` command is not found on the system or if the command fails when using UNIXCKSUM.
             UnsatisfiableDigestException: If no acceptable digest algorithm is found. The server and client fail to negotiate a common algorithm.
-        """
 
+        """
         wanted_digests = list(
             alg
             for i, (alg, qvalue) in enumerate(
@@ -180,7 +185,7 @@ class DigestHeaderAlgorithm(Enum):
                     _parse_want_digest_header(want_digest_header).items(),
                     key=lambda item: 1.0 if item[1] is None else item[1],
                     reverse=True,
-                )
+                ),
             )
             if qvalue != 0.0
             and (
@@ -203,6 +208,7 @@ class DigestHeaderAlgorithm(Enum):
 
         Returns:
             The computed digest. For UNIXSUM and UNIXCKSUM, this is a string representation of the checksum. For MD5, SHA, SHA256 and SHA512, this is a base64-encoded string of the hash.
+
         """
         match self:
             case DigestHeaderAlgorithm.UNIXSUM:
@@ -229,6 +235,7 @@ def _make_wants_digest_header(
 
     Returns:
         The `Want-Digest` header value as a string.
+
     """
     parts = []
     # With higher qvalues first
@@ -265,20 +272,20 @@ def _parse_digest_header(
     Raises:
         MalformedHeaderException: If the `Digest` header is malformed. E.g. missing `=` or empty algorithm or digest.
         UnacceptableAlgorithmException: If the `Digest` header contains an algorithm with a qvalue of 0.0.
-    """
 
+    """
     parsed_digests = {}
     for part in digest_header.split(","):
         if "=" not in part:
             raise MalformedHeaderException(
-                f"Malformed Digest header part: {part}. Missing '='."
+                f"Malformed Digest header part: {part}. Missing '='.",
             )
         alg_str, instance_digest = part.strip().split("=", 1)
         alg_str = alg_str.strip().lower()
         instance_digest = instance_digest.strip()
         if not alg_str or not instance_digest:
             raise MalformedHeaderException(
-                f"Malformed Digest header part: {part}. Empty algorithm or digest."
+                f"Malformed Digest header part: {part}. Empty algorithm or digest.",
             )
         try:
             alg = DigestHeaderAlgorithm(alg_str)
@@ -290,7 +297,7 @@ def _parse_digest_header(
             continue
         if qvalues.get(alg) == 0.0:
             raise UnacceptableAlgorithmException(
-                f"Algorithm {alg.value} not acceptable. qvalue is 0.0."
+                f"Algorithm {alg.value} not acceptable. qvalue is 0.0.",
             )
         parsed_digests[alg] = instance_digest
     return parsed_digests
@@ -314,14 +321,14 @@ def _parse_want_digest_header(
 
     Raises:
         MalformedWantDigestHeaderException: If the `Want-Digest` header is malformed.
-    """
 
+    """
     parsed_qvalues = {}
     for part in want_digest_header.split(","):
         part = part.strip()
         if not part:
             raise MalformedHeaderException(
-                f"Malformed Want-Digest header part: {part}. Empty part."
+                f"Malformed Want-Digest header part: {part}. Empty part.",
             )
         if ";" in part:
             alg_str, qvalue_str = part.split(";", 1)
@@ -329,13 +336,13 @@ def _parse_want_digest_header(
             qvalue_str = qvalue_str.strip()
             if not alg_str or not qvalue_str.startswith("q="):
                 raise MalformedHeaderException(
-                    f"Malformed Want-Digest header part: {part}."
+                    f"Malformed Want-Digest header part: {part}.",
                 )
             try:
                 qvalue = float(qvalue_str[2:])
             except ValueError:
                 raise MalformedHeaderException(
-                    f"Malformed Want-Digest header part: {part}. Invalid qvalue."
+                    f"Malformed Want-Digest header part: {part}. Invalid qvalue.",
                 )
         else:
             alg_str = part
@@ -375,8 +382,8 @@ def _bsdcksum(data: bytes) -> str:
 
     Raises:
         RuntimeError: If the `cksum` command is not found on the system or if the command fails.
-    """
 
+    """
     if shutil.which("cksum") is None:
         raise RuntimeError("cksum command not found. Cannot compute UNIXCKSUM.")
 
@@ -387,8 +394,7 @@ def _bsdcksum(data: bytes) -> str:
         check=True,
     )
     output = proc.stdout.decode().strip()
-    checksum = output.split()[0]
-    return checksum
+    return output.split()[0]
 
 
 class HeaderShouldBeAdded(NamedTuple):

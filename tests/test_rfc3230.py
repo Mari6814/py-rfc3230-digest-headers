@@ -1,5 +1,6 @@
 import shutil
 import subprocess
+
 import pytest
 
 from rfc3230_digest_headers.exceptions import (
@@ -8,13 +9,13 @@ from rfc3230_digest_headers.exceptions import (
     UnsatisfiableDigestException,
 )
 from rfc3230_digest_headers.rfc3230 import (
+    DigestHeaderAlgorithm,
+    HeaderShouldBeAdded,
+    _bsdcksum,
+    _bsdsum,
     _make_wants_digest_header,
     _parse_digest_header,
     _parse_want_digest_header,
-    _bsdsum,
-    _bsdcksum,
-    DigestHeaderAlgorithm,
-    HeaderShouldBeAdded,
 )
 
 
@@ -27,9 +28,9 @@ def test_bsdsum_hello_world():
             check=True,
         )
         output = proc.stdout.decode().strip()
-        checksum, nblocks = output.split()
+        checksum, _ = output.split()
         assert checksum == _bsdsum(b"Hello, World!")
-    assert "37287" == _bsdsum(b"Hello, World!")
+    assert _bsdsum(b"Hello, World!") == "37287"
 
 
 def test_cksum_hello_world():
@@ -41,9 +42,9 @@ def test_cksum_hello_world():
             check=True,
         )
         output = proc.stdout.decode().strip()
-        checksum, nbytes = output.split()[:2]
+        checksum, _ = output.split()[:2]
         assert checksum == _bsdcksum(b"Hello, World!")
-    assert "2609532967" == _bsdcksum(b"Hello, World!")
+    assert _bsdcksum(b"Hello, World!") == "2609532967"
 
 
 def test__make_wants_digest_header():
@@ -52,7 +53,7 @@ def test__make_wants_digest_header():
             DigestHeaderAlgorithm.SHA256: 1.0,
             DigestHeaderAlgorithm.MD5: 0.5,
             DigestHeaderAlgorithm.UNIXSUM: None,
-        }
+        },
     )
     assert header == "sha-256;q=1.0,unixsum,md5;q=0.5"
 
@@ -172,17 +173,17 @@ def test_malformed_parse_digest_header_with_empty_algorithm_or_qvaule():
 def test_compute_digests():
     data = b"Hello, World!"
 
-    assert "37287" == DigestHeaderAlgorithm.UNIXSUM.compute(data)
-    assert "2609532967" == DigestHeaderAlgorithm.UNIXCKSUM.compute(data)
-    assert "ZajifYh5KDgxtmS9i38K1A==" == DigestHeaderAlgorithm.MD5.compute(data)
-    assert "CgqfKmdylCVXq1NV12r0Qvj2XgE=" == DigestHeaderAlgorithm.SHA.compute(data)
+    assert DigestHeaderAlgorithm.UNIXSUM.compute(data) == "37287"
+    assert DigestHeaderAlgorithm.UNIXCKSUM.compute(data) == "2609532967"
+    assert DigestHeaderAlgorithm.MD5.compute(data) == "ZajifYh5KDgxtmS9i38K1A=="
+    assert DigestHeaderAlgorithm.SHA.compute(data) == "CgqfKmdylCVXq1NV12r0Qvj2XgE="
     assert (
-        "3/1gIbsr1bCvZ2KQgJ7DpTGR3YHH9wpLKGiKNiGCmG8="
-        == DigestHeaderAlgorithm.SHA256.compute(data)
+        DigestHeaderAlgorithm.SHA256.compute(data)
+        == "3/1gIbsr1bCvZ2KQgJ7DpTGR3YHH9wpLKGiKNiGCmG8="
     )
     assert (
-        "N015SpXNz9izWZMYX++bo2jxYNja9DLQi6nx7R5avmzGkpHg+i/gAGpSVw7xjBne9OYXwzzlLvCm5fvjGMsDhw=="
-        == DigestHeaderAlgorithm.SHA512.compute(data)
+        DigestHeaderAlgorithm.SHA512.compute(data)
+        == "N015SpXNz9izWZMYX++bo2jxYNja9DLQi6nx7R5avmzGkpHg+i/gAGpSVw7xjBne9OYXwzzlLvCm5fvjGMsDhw=="
     )
 
 
@@ -365,9 +366,9 @@ def test_verify_request_header_negotiation():
     }
     assert "sha-256=" in digest_header.header_value
     assert "md5=" in digest_header.header_value
-    assert "unixsum=" not in digest_header.header_value, (
-        "unixsum is has qalue 0, so it should not be used"
-    )
+    assert (
+        "unixsum=" not in digest_header.header_value
+    ), "unixsum is has qalue 0, so it should not be used"
     valid, response_header2 = DigestHeaderAlgorithm.verify_request(
         request_headers,
         data,
@@ -390,12 +391,12 @@ def test_verify_request_header_negotiation():
         "Digest": digest_header.header_value,
     }
     assert "sha-256=" in digest_header.header_value
-    assert "md5=" not in digest_header.header_value, (
-        "md5 has qvalue 0.5, but sha-256 has 1.0, so it should not be used"
-    )
-    assert "unixsum=" not in digest_header.header_value, (
-        "unixsum is has qalue 0, so it should not be used"
-    )
+    assert (
+        "md5=" not in digest_header.header_value
+    ), "md5 has qvalue 0.5, but sha-256 has 1.0, so it should not be used"
+    assert (
+        "unixsum=" not in digest_header.header_value
+    ), "unixsum is has qalue 0, so it should not be used"
     valid, response_header3 = DigestHeaderAlgorithm.verify_request(
         request_headers,
         data,
@@ -418,12 +419,12 @@ def test_verify_request_header_negotiation():
         "Digest": digest_header.header_value,
     }
     assert "md5=" in digest_header.header_value
-    assert "sha-256=" not in digest_header.header_value, (
-        "sha-256 has qalue 1.0, but was not requested, so it should not be used"
-    )
-    assert "unixsum=" not in digest_header.header_value, (
-        "unixsum is has qalue 0, so it should not be used"
-    )
+    assert (
+        "sha-256=" not in digest_header.header_value
+    ), "sha-256 has qalue 1.0, but was not requested, so it should not be used"
+    assert (
+        "unixsum=" not in digest_header.header_value
+    ), "unixsum is has qalue 0, so it should not be used"
     valid, response_header4 = DigestHeaderAlgorithm.verify_request(
         request_headers,
         data,
@@ -505,7 +506,7 @@ def test_default_qvalues_is_sha256():
     assert not valid2
     assert isinstance(response_header2, HeaderShouldBeAdded)
     assert response_header2.header_name == "Want-Digest"
-    assert "sha-256" == response_header2.header_value
+    assert response_header2.header_value == "sha-256"
 
 
 def test_verify_request_with_type_all():

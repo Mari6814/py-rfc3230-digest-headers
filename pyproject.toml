@@ -53,9 +53,8 @@ only-include = [
 ]
 
 [tool.ruff]
-include = ["E", "F", "W", "C", "N", "B", "D", "I"]
 
 [tool.ruff.lint]
-ignore = [
-    # "E501", # line too long
-]
+per-file-ignores = { "tests/*" = ["S101", "D103", "ANN201", "D100"] }
+select = ["ALL"]
+ignore = ["E501", "S607"]
