@@ -36,8 +36,8 @@ classifiers = [
 ]
 
 [project.urls]
-Repository = "https://github.com/Mari6814/py-rfc3230-http-digest-headers"
-Documentation = "https://github.com/Mari6814/py-rfc3230-http-digest-headers"
+Repository = "https://github.com/Mari6814/py-rfc3230-digest-headers"
+Documentation = "https://github.com/Mari6814/py-rfc3230-digest-headers"
 
 
 [dependency-groups]
