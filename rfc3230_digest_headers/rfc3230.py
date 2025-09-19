@@ -19,7 +19,7 @@ class DigestHeaderAlgorithm(Enum):
     - **MD5:** is provided for legacy reasons. You should not use it anymore.
     - **SHA:** is provided for legacy reasons. You should not use it anymore.
     - **SHA256:** is the **recommended** algorithm.
-    - **SHA512:** can be used, though the extra length is usually not necessary.
+    - **SHA512:** can be used if you want a stronger hash than SHA256.
     """
 
     UNIXSUM = "unixsum"
