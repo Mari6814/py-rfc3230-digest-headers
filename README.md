@@ -1,6 +1,6 @@
-[![Test](https://github.com/Mari6814/py-rfc3230-http-digest-headers/actions/workflows/ci.yml/badge.svg)](https://github.com/Mari6814/py-rfc3230-http-digest-headers/actions/workflows/test.yml)
-[![Coverage](https://github.com/Mari6814/py-rfc3230-http-digest-headers/raw/main/badges/coverage.svg)](https://github.com/Mari6814/py-rfc3230-http-digest-headers/raw/main/badges/coverage.svg)
-[![Versions](https://github.com/Mari6814/py-rfc3230-http-digest-headers/raw/main/badges/python-versions.svg)](https://github.com/Mari6814/py-rfc3230-http-digest-headers/raw/main/badges/python-versions.svg)
+[![Test](https://github.com/Mari6814/py-rfc3230-digest-headers/actions/workflows/ci.yml/badge.svg)](https://github.com/Mari6814/py-rfc3230-digest-headers/actions/workflows/test.yml)
+[![Coverage](https://github.com/Mari6814/py-rfc3230-digest-headers/raw/main/badges/coverage.svg)](https://github.com/Mari6814/py-rfc3230-digest-headers/raw/main/badges/coverage.svg)
+[![Versions](https://github.com/Mari6814/py-rfc3230-digest-headers/raw/main/badges/python-versions.svg)](https://github.com/Mari6814/py-rfc3230-digest-headers/raw/main/badges/python-versions.svg)
 
 # Introduction
 A small library to provide the server and client side methods to require, negotiation and generate `Digest` HTTP headers as per [RFC 3230](https://datatracker.ietf.org/doc/html/rfc3230).
