@@ -4,9 +4,9 @@ import subprocess
 import pytest
 
 from rfc3230_digest_headers.exceptions import (
-    MalformedHeaderException,
-    UnacceptableAlgorithmException,
-    UnsatisfiableDigestException,
+    MalformedHeaderError,
+    UnacceptableAlgorithmError,
+    UnsatisfiableDigestError,
 )
 from rfc3230_digest_headers.rfc3230 import (
     DigestHeaderAlgorithm,
@@ -77,7 +77,7 @@ def test_parse_digest_header():
 
 def test_parse_digest_header_fails_on_unacceptable_algorithm():
     header = "sha-256=abc, md5=def , unixsum=ghi"
-    with pytest.raises(UnacceptableAlgorithmException):
+    with pytest.raises(UnacceptableAlgorithmError):
         _parse_digest_header(
             header,
             qvalues={
@@ -98,13 +98,13 @@ def test_parse_digest_header_ignores_unknown_algorithm():
 
 def test_parse_digest_header_with_empty_part_counts_as_malformed():
     for header in ("sha-256=abc, , md5=def", "sha-256=abc,, md5=def", ""):
-        with pytest.raises(MalformedHeaderException):
+        with pytest.raises(MalformedHeaderError):
             _parse_digest_header(header, qvalues={DigestHeaderAlgorithm.SHA256: None})
 
 
 def test_parse_digest_header_missing_equal_counts_as_malformed():
     header = "sha-256abc, md5=def , unixsum=ghi"
-    with pytest.raises(MalformedHeaderException):
+    with pytest.raises(MalformedHeaderError):
         _parse_digest_header(header, qvalues={DigestHeaderAlgorithm.SHA256: None})
 
 
@@ -166,7 +166,7 @@ def test_parse_mixed_case_algorithm_names():
 
 def test_malformed_parse_digest_header_with_empty_algorithm_or_qvaule():
     for header in ("=abc, md5=def", "sha-256=abc, md5="):
-        with pytest.raises(MalformedHeaderException):
+        with pytest.raises(MalformedHeaderError):
             _parse_digest_header(header, qvalues={DigestHeaderAlgorithm.SHA256: None})
 
 
@@ -208,25 +208,25 @@ def test_want_digest_header_missing_semicolon_counts_as_unknown_and_is_ignored()
 
 def test_empty_qvalue_counts_as_malformed_in_want_digest_header():
     header = "sha;q=, unixsum, md5;q=0.5"
-    with pytest.raises(MalformedHeaderException):
+    with pytest.raises(MalformedHeaderError):
         _parse_want_digest_header(header)
 
 
 def test_want_digest_header_without_algorithm_counts_as_malformed():
     for header in (";q=1.0, unixsum, md5;q=0.5", ";q=1.0"):
-        with pytest.raises(MalformedHeaderException):
+        with pytest.raises(MalformedHeaderError):
             _parse_want_digest_header(header)
 
 
 def test_want_digest_header_with_empty_part_counts_as_malformed():
     for header in ("sha-256;q=1.0, , md5;q=0.5", "sha-256;q=1.0,, md5;q=0.5", ""):
-        with pytest.raises(MalformedHeaderException):
+        with pytest.raises(MalformedHeaderError):
             _parse_want_digest_header(header)
 
 
 def test_want_digest_header_with_non_numeric_qvalue_counts_as_malformed():
     for header in ("sha-256;q=abc, unixsum, md5;q=0.5", "sha;q=abc"):
-        with pytest.raises(MalformedHeaderException):
+        with pytest.raises(MalformedHeaderError):
             _parse_want_digest_header(header)
 
 
@@ -242,7 +242,7 @@ def test_whitespace_in_want_digest_header_accepted():
 
 def test_space_in_want_digest_header_accepted_after_q_is_malformed():
     header = "sha;q =1.0"
-    with pytest.raises(MalformedHeaderException):
+    with pytest.raises(MalformedHeaderError):
         _parse_want_digest_header(header)
 
 
@@ -287,7 +287,7 @@ def test_verify_request_fails_on_unacceptable_algorithm():
     }
     assert "sha-256=" in digest_header.header_value
     assert "md5=" in digest_header.header_value
-    with pytest.raises(UnacceptableAlgorithmException):
+    with pytest.raises(UnacceptableAlgorithmError):
         DigestHeaderAlgorithm.verify_request(
             request_headers,
             data,
@@ -304,7 +304,7 @@ def test_verify_fails_on_malformed_header():
     request_headers = {
         "Digest": "sha-256=abc, , md5=def",  # Malformed (empty part)
     }
-    with pytest.raises(MalformedHeaderException):
+    with pytest.raises(MalformedHeaderError):
         DigestHeaderAlgorithm.verify_request(
             request_headers,
             data,
@@ -366,9 +366,9 @@ def test_verify_request_header_negotiation():
     }
     assert "sha-256=" in digest_header.header_value
     assert "md5=" in digest_header.header_value
-    assert (
-        "unixsum=" not in digest_header.header_value
-    ), "unixsum is has qalue 0, so it should not be used"
+    assert "unixsum=" not in digest_header.header_value, (
+        "unixsum is has qalue 0, so it should not be used"
+    )
     valid, response_header2 = DigestHeaderAlgorithm.verify_request(
         request_headers,
         data,
@@ -391,12 +391,12 @@ def test_verify_request_header_negotiation():
         "Digest": digest_header.header_value,
     }
     assert "sha-256=" in digest_header.header_value
-    assert (
-        "md5=" not in digest_header.header_value
-    ), "md5 has qvalue 0.5, but sha-256 has 1.0, so it should not be used"
-    assert (
-        "unixsum=" not in digest_header.header_value
-    ), "unixsum is has qalue 0, so it should not be used"
+    assert "md5=" not in digest_header.header_value, (
+        "md5 has qvalue 0.5, but sha-256 has 1.0, so it should not be used"
+    )
+    assert "unixsum=" not in digest_header.header_value, (
+        "unixsum is has qalue 0, so it should not be used"
+    )
     valid, response_header3 = DigestHeaderAlgorithm.verify_request(
         request_headers,
         data,
@@ -419,12 +419,12 @@ def test_verify_request_header_negotiation():
         "Digest": digest_header.header_value,
     }
     assert "md5=" in digest_header.header_value
-    assert (
-        "sha-256=" not in digest_header.header_value
-    ), "sha-256 has qalue 1.0, but was not requested, so it should not be used"
-    assert (
-        "unixsum=" not in digest_header.header_value
-    ), "unixsum is has qalue 0, so it should not be used"
+    assert "sha-256=" not in digest_header.header_value, (
+        "sha-256 has qalue 1.0, but was not requested, so it should not be used"
+    )
+    assert "unixsum=" not in digest_header.header_value, (
+        "unixsum is has qalue 0, so it should not be used"
+    )
     valid, response_header4 = DigestHeaderAlgorithm.verify_request(
         request_headers,
         data,
@@ -460,7 +460,7 @@ def test_verify_request_negotiation_fails_because_client_does_not_support_reques
     assert "sha-256;q=1.0" in response_header.header_value
     assert "md5;q=0.0" in response_header.header_value
     # Now client tries to respond, but does not support any of the suggested algorithms
-    with pytest.raises(UnsatisfiableDigestException):
+    with pytest.raises(UnsatisfiableDigestError):
         DigestHeaderAlgorithm.handle_want_digest_header(
             instance=data,
             want_digest_header=response_header.header_value,
