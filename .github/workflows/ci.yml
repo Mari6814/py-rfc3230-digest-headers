@@ -30,8 +30,8 @@ jobs:
       - name: Install dependencies
         run: uv sync --dev --all-extras
       - name: Check formatting with ruff
-        run: uv run -m ruff format --check rfc3230_digest_headers/ tests/
+        run: uv run -m ruff format --check rfc3230_digest_headers/* tests/*
       - name: Run ruff lint
-        run: uv run -m ruff check rfc3230_digest_headers/ tests/
+        run: uv run -m ruff check rfc3230_digest_headers/* tests/*
       - name: Run pytest
         run: uv run -m pytest
