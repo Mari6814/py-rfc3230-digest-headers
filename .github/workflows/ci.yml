@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'http_digest_headers/**'
+      - 'rfc3230_digest_headers/**'
       - 'tests/**'
       - 'pyproject.toml'
       - 'uv.lock'
