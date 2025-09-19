@@ -9,7 +9,7 @@ Clients can generate `Digest` headers of the form: `Digest: SHA-256=xyz, MD5=abc
 # Installation
 Install using pip:
 ```bash
-pip install rfc3230-http-digest-headers
+pip install rfc3230-digest-headers
 ```
 
 # Overview of the protocol
