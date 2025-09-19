@@ -19,6 +19,7 @@ keywords = [
     "headers",
     "authentication",
     "security",
+    "integrity",
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
