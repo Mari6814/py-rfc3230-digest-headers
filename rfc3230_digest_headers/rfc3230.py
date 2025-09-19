@@ -176,7 +176,11 @@ class DigestHeaderAlgorithm(Enum):
         wanted_digests = list(
             alg
             for i, (alg, qvalue) in enumerate(
-                _parse_want_digest_header(want_digest_header).items()
+                sorted(
+                    _parse_want_digest_header(want_digest_header).items(),
+                    key=lambda item: 1.0 if item[1] is None else item[1],
+                    reverse=True,
+                )
             )
             if qvalue != 0.0
             and (
