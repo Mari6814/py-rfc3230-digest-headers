@@ -4,6 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
+      - '.github/workflows/ci.yml'
       - 'rfc3230_digest_headers/**'
       - 'tests/**'
       - 'pyproject.toml'
