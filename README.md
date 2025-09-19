@@ -4,6 +4,7 @@
 
 # Introduction
 A small library to provide the server and client side methods to require, negotiation and generate `Digest` HTTP headers as per [RFC 3230](https://datatracker.ietf.org/doc/html/rfc3230).
+Clients can generate `Digest` headers of the form: `Digest: SHA-256=xyz, MD5=abc`. Server can require certain algorithms by sending `Want-Digest` headers of the form: `Want-Digest: SHA-256, SHA;q=0.5, MD5;q=0`.
 
 # Installation
 Install using pip:
