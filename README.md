@@ -1,4 +1,4 @@
-[![Test](https://github.com/Mari6814/py-rfc3230-digest-headers/actions/workflows/ci.yml/badge.svg)](https://github.com/Mari6814/py-rfc3230-digest-headers/actions/workflows/test.yml)
+[![Test](https://github.com/Mari6814/py-rfc3230-digest-headers/actions/workflows/ci.yml/badge.svg)](https://github.com/Mari6814/py-rfc3230-digest-headers/actions/workflows/ci.yml)
 [![Coverage](https://github.com/Mari6814/py-rfc3230-digest-headers/raw/main/badges/coverage.svg)](https://github.com/Mari6814/py-rfc3230-digest-headers/raw/main/badges/coverage.svg)
 [![Versions](https://github.com/Mari6814/py-rfc3230-digest-headers/raw/main/badges/python-versions.svg)](https://github.com/Mari6814/py-rfc3230-digest-headers/raw/main/badges/python-versions.svg)
 
