@@ -65,7 +65,7 @@ class DigestHeaderAlgorithm(Enum):
         A qvalue of 0.0 means that the algorithm is not acceptable. An algorithm not listed is ignored.
 
         Args:
-            request_headers: The request headers as a dictionary. Only the `Digest` header is relevant.
+            request_headers: The request headers as a dictionary. Only the `Digest` header is relevant. The reason we accept all headers is because most HTTP frameworks provide the headers as a dictionary and this pattern minimizes the risk, that the dev passes the wrong header. When all headers are passed, this library can handle extracting the right header.
             instance: The instance bytes to verify the digest against. May be fully, partially or not contained at all as part of the request. Usually this is just the method + path + date + body of the request.
             qvalues: An optional dictionary of accepted algorithms and their quality values. If None, defaults to {Algorithm.SHA256: None}. An algorithm not listed here will be ignored. An unkown algorithm will be ignored. An unacceptable algorithm (qvalue of 0.0) will fail the check.
             verify_type: If "all", all provided digests must match. If "any", at least one provided digest must match. Defaults to "all".
