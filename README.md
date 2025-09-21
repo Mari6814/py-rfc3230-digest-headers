@@ -43,12 +43,12 @@ The client generates a `Digest` for their _instance_.
 from rfc3230_digest_headers import DigestHeaderAlgorithm
 
 instance_bytes = b"Hello, World!"
-(header_name, header_value) = DigestHeaderAlgorithm.make_digest_header(
+header = DigestHeaderAlgorithm.make_digest_header(
     instance=instance_bytes,
     algorithms=[DigestHeaderAlgorithm.SHA256, DigestHeaderAlgorithm.MD5]
 )
-print(header_name)  # "Digest"
-print(header_value) # "SHA-256=..., MD5=..."
+print(header.header_name)  # "Digest"
+print(header.header_value) # "SHA-256=..., MD5=..."
 ```
 
 ## Usage: Verify a `Digest` header
@@ -75,8 +75,7 @@ print(want_digest_header_should_be_added)  # None if valid, otherwise contains t
 
 ## Usage: Server-side negotiation of algorithms
 
-The server can indicate which algorithms the endpoint requires by sending a `Want-Digest` header.
-The header is automatically generated when attempting to verify invalid request headers.
+The server can indicate which algorithms the endpoint requires by sending a `Want-Digest` header. The header is automatically generated when attempting to verify invalid request headers. In the following example, the client sends a `Digest` header with an unsupported algorithm (`MD5` with a _q-value_ of `0.0`), so the server responds with a `Want-Digest` header indicating which algorithms are supported.
 
 ```python
 from rfc3230_digest_headers import DigestHeaderAlgorithm
@@ -100,11 +99,9 @@ if want_digest_header_should_be_added:
     ...
 ```
 
-In this example the request fails because the client sent `MD5`, which is not supported by the server.
-
 ## Usage: Client-side negotiation of algorithms
 
-When an endpoint responds with a `Want-Digest` header, the client can parse it and generate a valid `Digest` header.
+When an endpoint responds with a `Want-Digest` header, the client can parse it and generate a valid `Digest` header. In the following example, imagine that we initially sent a request with `b'Hello, World!'` as body, and the server responded with an HTTP error code and a `Want-Digest` header. The client sees that its original request failed, and that the server wants a `Digest` header. The client then generates a valid `Digest` header using the highest priority algorithm from the `Want-Digest` header and re-sends the request.
 
 ```python
 from rfc3230_digest_headers import DigestHeaderAlgorithm
