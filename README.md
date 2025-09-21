@@ -94,7 +94,7 @@ is_valid, want_digest_header_should_be_added = DigestHeaderAlgorithm.verify_requ
 )
 if want_digest_header_should_be_added:
     print(want_digest_header_should_be_added.header_name)  # "Want-Digest"
-    print(want_digest_header_should_be_added.header_value) # "SHA-256, SHA
+    print(want_digest_header_should_be_added.header_value) # "SHA-256, SHA;q=0.5, MD5;q=0"
     # Send the response with the generated Want-Digest header
     ...
 ```
