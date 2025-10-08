@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rfc3230-digest-headers"
-version = "1.0.2"
+version = "1.0.3"
 description = "Implementation of the Digest HTTP headers according to RFC 3230."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -45,12 +45,7 @@ Documentation = "https://github.com/Mari6814/py-rfc3230-digest-headers"
 dev = ["coverage>=7.10.6", "pybadges>=3.0.1", "pytest>=8.4.2", "ruff>=0.13.0"]
 
 [tool.hatch.build]
-only-include = [
-    "rfc3230_digest_headers",
-    "README.md",
-    "LICENSE",
-    "pyproject.toml",
-]
+packages = [ "rfc3230_digest_headers" ]
 
 
 [tool.ruff.lint]
