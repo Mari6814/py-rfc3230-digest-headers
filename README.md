@@ -110,7 +110,17 @@ from rfc3230_digest_headers import DigestHeaderAlgorithm
 instance_bytes = b"Hello, World!"
 want_digest_header_value = "SHA-256, SHA;q=0.5, MD5;q=0"
 
-# Parse the response and generate a valid Digest header (if possible)
+# Option 1: Use make_digest_header with the want_digest_header parameter
+# This will automatically handle negotiation
+header = DigestHeaderAlgorithm.make_digest_header(
+    instance=instance_bytes,
+    algorithms="auto",  # Use the highest priority algorithm from Want-Digest
+    want_digest_header=want_digest_header_value
+)
+print(header.header_name)   # "Digest"
+print(header.header_value)  # "sha-256=..."
+
+# Option 2: Explicitly use handle_want_digest_header (legacy approach)
 header = DigestHeaderAlgorithm.handle_want_digest_header(
     instance=instance_bytes,
     want_digest_header=want_digest_header_value,
@@ -122,3 +132,5 @@ print(header.header_value)  # "sha-256=..."
 # re-send the request with the generated Digest header
 ...
 ```
+
+You can also use `algorithms="all"` to include all acceptable algorithms from the `Want-Digest` header, or provide an explicit list like `algorithms=[DigestHeaderAlgorithm.SHA256, DigestHeaderAlgorithm.MD5]` to only use specific algorithms that you support.

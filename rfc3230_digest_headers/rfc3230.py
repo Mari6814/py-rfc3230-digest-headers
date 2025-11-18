@@ -141,7 +141,8 @@ class DigestHeaderAlgorithm(Enum):
     @staticmethod
     def make_digest_header(
         instance: bytes,
-        algorithms: Sequence["DigestHeaderAlgorithm"],
+        algorithms: Sequence["DigestHeaderAlgorithm"] | Literal["all", "auto"] = "auto",
+        want_digest_header: str | None = None,
     ) -> "HeaderShouldBeAdded":
         """Generate a `Digest` header for the given instance bytes for each of the specified algorithms.
 
@@ -150,12 +151,31 @@ class DigestHeaderAlgorithm(Enum):
 
         Args:
             instance: The instance bytes to compute the digest for. You have to negotiate with the server what exactly is part of this instance.
-            algorithms: A list of algorithms to compute the digest with. The server may ignore any and all of them.
+            algorithms: A list of algorithms to compute the digest with. The server may ignore any and all of them. If "auto" is provided, only `SHA256` will be used. "all" is only valid in the case that a `Want-Digest` header is provided.
+            want_digest_header: An optional `Want-Digest` header value from the server. If provided, this method will call `handle_want_digest_header` instead to negotiate the algorithms.
 
         Returns:
             A `HeaderShouldBeAdded` object containing the `Digest` header name and its value. Add this header to your request.
 
+        Raises:
+            MalformedHeaderError: If the `Want-Digest` header is malformed.
+            RuntimeError: If the `cksum` command is not found on the system or if the command fails when using UNIXCKSUM.
+            UnsatisfiableDigestError: If no acceptable digest algorithm is found. The server and client fail to negotiate a common algorithm.
+            ValueError: If `all` is provided as `algorithms` without a `want_digest_header`.
+
         """
+        if want_digest_header is not None:
+            return DigestHeaderAlgorithm.handle_want_digest_header(
+                instance,
+                want_digest_header,
+                algorithms,
+            )
+        if algorithms == "all":
+            raise ValueError(
+                "`all` is not a valid value for `algorithms` if no `want_digest_header` is provided.",
+            )
+        if algorithms == "auto":
+            algorithms = [DigestHeaderAlgorithm.SHA256]
         header_value = ",".join(
             f"{alg.value}={alg.compute(instance)}" for alg in algorithms
         )

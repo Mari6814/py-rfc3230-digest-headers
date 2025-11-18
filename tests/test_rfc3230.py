@@ -663,3 +663,87 @@ def test_verify_request_fails_if_verify_type_is_any_but_none_match():
     assert response_header.header_name == "Want-Digest"
     assert "sha-256;q=1.0" in response_header.header_value
     assert "md5;q=0.5" in response_header.header_value
+
+
+def test_make_digest_header_with_want_digest_header_auto():
+    """Test that make_digest_header redirects to handle_want_digest_header when want_digest_header is provided with 'auto'."""
+    data = b"Hello, World!"
+    want_digest_header_value = "sha-256;q=1.0, md5;q=0.5, unixsum;q=0.0"
+
+    # Using make_digest_header with want_digest_header parameter and 'auto'
+    header = DigestHeaderAlgorithm.make_digest_header(
+        instance=data,
+        algorithms="auto",
+        want_digest_header=want_digest_header_value,
+    )
+
+    assert header.header_name == "Digest"
+    assert "sha-256=" in header.header_value
+    # With 'auto', only the highest priority algorithm should be used
+    assert "md5=" not in header.header_value
+    assert "unixsum=" not in header.header_value
+
+
+def test_make_digest_header_with_want_digest_header_all():
+    """Test that make_digest_header redirects to handle_want_digest_header when want_digest_header is provided with 'all'."""
+    data = b"Hello, World!"
+    want_digest_header_value = "sha-256;q=1.0, md5;q=0.5, unixsum;q=0.0"
+
+    # Using make_digest_header with want_digest_header parameter and 'all'
+    header = DigestHeaderAlgorithm.make_digest_header(
+        instance=data,
+        algorithms="all",
+        want_digest_header=want_digest_header_value,
+    )
+
+    assert header.header_name == "Digest"
+    assert "sha-256=" in header.header_value
+    assert "md5=" in header.header_value
+    # unixsum has qvalue 0.0, so it should not be used
+    assert "unixsum=" not in header.header_value
+
+
+def test_make_digest_header_with_want_digest_header_explicit_algorithms():
+    """Test that make_digest_header redirects to handle_want_digest_header with explicit algorithm list."""
+    data = b"Hello, World!"
+    want_digest_header_value = "sha-256;q=1.0, md5;q=0.5, sha;q=0.3"
+
+    # Using make_digest_header with want_digest_header parameter and explicit algorithms
+    header = DigestHeaderAlgorithm.make_digest_header(
+        instance=data,
+        algorithms=[DigestHeaderAlgorithm.MD5, DigestHeaderAlgorithm.SHA],
+        want_digest_header=want_digest_header_value,
+    )
+
+    assert header.header_name == "Digest"
+    # Only md5 and sha should be used (from our explicit list that match want_digest)
+    assert "md5=" in header.header_value
+    assert "sha=" in header.header_value
+    # sha-256 is in want_digest but not in our explicit list
+    assert "sha-256=" not in header.header_value
+
+
+def test_make_digest_header_with_want_digest_header_no_acceptable_algorithm():
+    """Test that make_digest_header raises UnsatisfiableDigestError when no algorithm matches."""
+    data = b"Hello, World!"
+    want_digest_header_value = "sha-256;q=1.0, md5;q=0.0"
+
+    # Client only supports SHA (not in the acceptable list from server)
+    with pytest.raises(UnsatisfiableDigestError):
+        DigestHeaderAlgorithm.make_digest_header(
+            instance=data,
+            algorithms=[DigestHeaderAlgorithm.SHA],
+            want_digest_header=want_digest_header_value,
+        )
+
+
+def test_make_digest_header_raises_error_when_all_without_want_digest():
+    """Test that make_digest_header raises ValueError when 'all' is used without want_digest_header."""
+    data = b"Hello, World!"
+
+    with pytest.raises(ValueError, match="`all` is not a valid value"):
+        DigestHeaderAlgorithm.make_digest_header(
+            instance=data,
+            algorithms="all",
+            want_digest_header=None,
+        )
