@@ -770,6 +770,7 @@ def test_digest_header_from_fuzzed_input():
                 request_headers,
                 data,
                 qvalues=dict.fromkeys(DigestHeaderAlgorithm),
+                verify_type="all",
             )
             assert valid
             assert response_header is None
