@@ -565,6 +565,7 @@ def test_verify_request_type_all_catches_not_all_are_valid():
     assert response_header.header_name == "Want-Digest"
     assert "sha-256;q=1.0" in response_header.header_value
     assert "md5;q=0.5" in response_header.header_value
+    assert "unixsum;q=0.0" in response_header.header_value
 
 
 def test_verify_request_with_mixed_case_of_digest_header():
