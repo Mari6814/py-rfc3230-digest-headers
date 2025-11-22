@@ -367,9 +367,9 @@ def test_verify_request_header_negotiation():
     }
     assert "sha-256=" in digest_header.header_value
     assert "md5=" in digest_header.header_value
-    assert (
-        "unixsum=" not in digest_header.header_value
-    ), "unixsum is has qalue 0, so it should not be used"
+    assert "unixsum=" not in digest_header.header_value, (
+        "unixsum is has qalue 0, so it should not be used"
+    )
     valid, response_header2 = DigestHeaderAlgorithm.verify_request(
         request_headers,
         data,
@@ -392,12 +392,12 @@ def test_verify_request_header_negotiation():
         "Digest": digest_header.header_value,
     }
     assert "sha-256=" in digest_header.header_value
-    assert (
-        "md5=" not in digest_header.header_value
-    ), "md5 has qvalue 0.5, but sha-256 has 1.0, so it should not be used"
-    assert (
-        "unixsum=" not in digest_header.header_value
-    ), "unixsum is has qalue 0, so it should not be used"
+    assert "md5=" not in digest_header.header_value, (
+        "md5 has qvalue 0.5, but sha-256 has 1.0, so it should not be used"
+    )
+    assert "unixsum=" not in digest_header.header_value, (
+        "unixsum is has qalue 0, so it should not be used"
+    )
     valid, response_header3 = DigestHeaderAlgorithm.verify_request(
         request_headers,
         data,
@@ -420,12 +420,12 @@ def test_verify_request_header_negotiation():
         "Digest": digest_header.header_value,
     }
     assert "md5=" in digest_header.header_value
-    assert (
-        "sha-256=" not in digest_header.header_value
-    ), "sha-256 has qalue 1.0, but was not requested, so it should not be used"
-    assert (
-        "unixsum=" not in digest_header.header_value
-    ), "unixsum is has qalue 0, so it should not be used"
+    assert "sha-256=" not in digest_header.header_value, (
+        "sha-256 has qalue 1.0, but was not requested, so it should not be used"
+    )
+    assert "unixsum=" not in digest_header.header_value, (
+        "unixsum is has qalue 0, so it should not be used"
+    )
     valid, response_header4 = DigestHeaderAlgorithm.verify_request(
         request_headers,
         data,
