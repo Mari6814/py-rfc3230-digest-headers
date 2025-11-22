@@ -537,7 +537,9 @@ def test_verify_request_with_type_all():
     assert valid
     assert response_header is None
 
-    # Now try with only one of the algorithms correct
+
+def test_verify_request_type_all_catches_not_all_are_valid():
+    data = b"Hello, World!"
     digest_header = DigestHeaderAlgorithm.make_digest_header(
         data,
         algorithms=[
