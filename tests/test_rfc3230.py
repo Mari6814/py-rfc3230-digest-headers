@@ -773,3 +773,52 @@ def test_digest_header_from_fuzzed_input():
             )
             assert valid
             assert response_header is None
+
+
+def test_verify_type_all_fails_if_any_is_invalid_type_any_still_works():
+    data = os.urandom(1000)
+    digest_header = DigestHeaderAlgorithm.make_digest_header(
+        data,
+        algorithms=list(DigestHeaderAlgorithm),
+    )
+    # First lets make sure that the valid case works
+    request_headers = {
+        "Digest": digest_header.header_value,
+    }
+    valid, response_header = DigestHeaderAlgorithm.verify_request(
+        request_headers,
+        data,
+        qvalues=dict.fromkeys(DigestHeaderAlgorithm),
+        verify_type="all",
+    )
+    assert valid
+    assert response_header is None
+
+    # Now lets pick every algorithm one by one and temper its value to make sure that verify_request fails
+    for tempered_alg in DigestHeaderAlgorithm:
+        # Prepend something invalid to one of the algorithms
+        tempered_header = digest_header.header_value.replace(
+            f"{tempered_alg.value.lower()}=", f"{tempered_alg.name.lower()}=a"
+        )
+        request_headers = {
+            "Digest": tempered_header,
+        }
+        valid, response_header = DigestHeaderAlgorithm.verify_request(
+            request_headers,
+            data,
+            qvalues=dict.fromkeys(DigestHeaderAlgorithm),
+            verify_type="all",
+        )
+        assert not valid
+        assert isinstance(response_header, HeaderShouldBeAdded)
+        assert response_header.header_name == "Want-Digest"
+
+        # In 'any' mode, it should still be valid as other algorithms are valid
+        valid_any, response_header_any = DigestHeaderAlgorithm.verify_request(
+            request_headers,
+            data,
+            qvalues=dict.fromkeys(DigestHeaderAlgorithm),
+            verify_type="any",
+        )
+        assert valid_any
+        assert response_header_any is None
