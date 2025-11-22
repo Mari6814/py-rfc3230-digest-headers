@@ -754,7 +754,7 @@ def test_make_digest_header_raises_error_when_all_without_want_digest():
 
 
 def test_digest_header_from_fuzzed_input():
-    # Use all algorithms with an increasing amount of random input data to make sure that no hash can be generated that fails, parsing and validating
+    """Use all algorithms with an increasing amount of random input data to make sure that no hash can be generated that fails, parsing and validating"""
 
     for _ in range(3):
         for size in range(0, 1024, 7):
