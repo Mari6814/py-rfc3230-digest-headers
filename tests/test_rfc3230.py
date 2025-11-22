@@ -1,3 +1,4 @@
+import os
 import shutil
 import subprocess
 
@@ -747,3 +748,25 @@ def test_make_digest_header_raises_error_when_all_without_want_digest():
             algorithms="all",
             want_digest_header=None,
         )
+
+
+def test_digest_header_from_fuzzed_input():
+    # Use all algorithms with an increasing amount of random input data to make sure that no hash can be generated that fails, parsing and validating
+
+    for _ in range(3):
+        for size in range(0, 1024, 7):
+            data = os.urandom(size)
+            digest_header = DigestHeaderAlgorithm.make_digest_header(
+                data,
+                algorithms=list(DigestHeaderAlgorithm),
+            )
+            request_headers = {
+                "Digest": digest_header.header_value,
+            }
+            valid, response_header = DigestHeaderAlgorithm.verify_request(
+                request_headers,
+                data,
+                qvalues=dict.fromkeys(DigestHeaderAlgorithm),
+            )
+            assert valid
+            assert response_header is None
