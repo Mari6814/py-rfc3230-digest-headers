@@ -199,8 +199,9 @@ When an endpoint responds with a `Want-Digest` header, the client can parse it a
 ```python
 from rfc3230_digest_headers import DigestHeaderAlgorithm
 
-# Fake response from server with Want-Digest header
 instance_bytes = b"Hello, World!"
+
+# Exemplary Want-Digest header from server's response
 want_digest_header_value = "SHA-256, SHA;q=0.5, MD5;q=0"
 
 # Option 1: Use make_digest_header with the want_digest_header parameter
