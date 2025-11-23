@@ -125,8 +125,8 @@ print(digest_header.header_name, digest_header.header_value) # Will use SHA-256 
 ```
 
 
-## Older object-oriented Interface
-These usage examples demonstrate the older object-oriented interface directly on `DigestHeaderAlgorithm`.
+## Older enum-oriented Interface
+These usage examples demonstrate the older enum-oriented interface directly on `DigestHeaderAlgorithm`.
 
 ### Generate a `Digest` header
 
