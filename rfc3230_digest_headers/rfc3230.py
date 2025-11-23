@@ -97,7 +97,11 @@ class DigestHeaderAlgorithm(Enum):
         if digest_header is None:
             return (
                 False,
-                HeaderShouldBeAdded("Want-Digest", _make_wants_digest_header(qvalues)),
+                HeaderShouldBeAdded(
+                    "Want-Digest",
+                    _make_wants_digest_header(qvalues),
+                    error_description="Missing Digest header.",
+                ),
             )
 
         provided_digests = _parse_digest_header(digest_header, qvalues)
@@ -105,7 +109,11 @@ class DigestHeaderAlgorithm(Enum):
             # In the case no known algorithm was provided, we also want to inform the client what we want.
             return (
                 False,
-                HeaderShouldBeAdded("Want-Digest", _make_wants_digest_header(qvalues)),
+                HeaderShouldBeAdded(
+                    "Want-Digest",
+                    _make_wants_digest_header(qvalues),
+                    error_description="No acceptable algorithm provided in Digest header.",
+                ),
             )
 
         for alg, provided_digest in provided_digests.items():
@@ -118,6 +126,7 @@ class DigestHeaderAlgorithm(Enum):
                     HeaderShouldBeAdded(
                         "Want-Digest",
                         _make_wants_digest_header(qvalues),
+                        error_description=f"Digest value mismatch for algorithm: {alg.value}.",
                     ),
                 )
         if verify_type == "all":
@@ -130,12 +139,17 @@ class DigestHeaderAlgorithm(Enum):
                     HeaderShouldBeAdded(
                         "Want-Digest",
                         _make_wants_digest_header(qvalues),
+                        error_description="Not all required algorithms provided in Digest header.",
                     ),
                 )
             return (True, None)
         return (
             False,
-            HeaderShouldBeAdded("Want-Digest", _make_wants_digest_header(qvalues)),
+            HeaderShouldBeAdded(
+                "Want-Digest",
+                _make_wants_digest_header(qvalues),
+                error_description="No Digest value matched for any acceptable algorithm.",
+            ),
         )
 
     @staticmethod
@@ -444,3 +458,4 @@ class HeaderShouldBeAdded(NamedTuple):
 
     header_name: str
     header_value: str
+    error_description: str | None = None
