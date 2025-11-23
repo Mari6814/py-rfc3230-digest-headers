@@ -288,16 +288,20 @@ def test_verify_request_fails_on_unacceptable_algorithm():
     }
     assert "sha-256=" in digest_header.header_value
     assert "md5=" in digest_header.header_value
-    with pytest.raises(UnacceptableAlgorithmError):
-        DigestHeaderAlgorithm.verify_request(
-            request_headers,
-            data,
-            qvalues={
-                DigestHeaderAlgorithm.SHA256: 1.0,
-                DigestHeaderAlgorithm.MD5: 0.0,  # Not acceptable
-                DigestHeaderAlgorithm.UNIXSUM: 0,
-            },
-        )
+    valid, want_digest = DigestHeaderAlgorithm.verify_request(
+        request_headers,
+        data,
+        qvalues={
+            DigestHeaderAlgorithm.SHA256: 1.0,
+            DigestHeaderAlgorithm.MD5: 0.0,  # Not acceptable
+            DigestHeaderAlgorithm.UNIXSUM: 0,
+        },
+    )
+    assert not valid
+    assert want_digest is not None
+    assert (
+        want_digest.error_description == "Algorithm md5 not acceptable. qvalue is 0.0."
+    )
 
 
 def test_verify_fails_on_malformed_header():
@@ -305,16 +309,18 @@ def test_verify_fails_on_malformed_header():
     request_headers = {
         "Digest": "sha-256=abc, , md5=def",  # Malformed (empty part)
     }
-    with pytest.raises(MalformedHeaderError):
-        DigestHeaderAlgorithm.verify_request(
-            request_headers,
-            data,
-            qvalues={
-                DigestHeaderAlgorithm.SHA256: 1.0,
-                DigestHeaderAlgorithm.MD5: 0.5,
-                DigestHeaderAlgorithm.UNIXSUM: 0,
-            },
-        )
+    valid, want_digest = DigestHeaderAlgorithm.verify_request(
+        request_headers,
+        data,
+        qvalues={
+            DigestHeaderAlgorithm.SHA256: 1.0,
+            DigestHeaderAlgorithm.MD5: 0.5,
+            DigestHeaderAlgorithm.UNIXSUM: 0,
+        },
+    )
+    assert not valid
+    assert want_digest is not None
+    assert want_digest.error_description == "Malformed Digest header"
 
 
 def test_verify_fails_on_missing_header():

@@ -76,8 +76,6 @@ class DigestHeaderAlgorithm(Enum):
             otherwise `None`.
 
         Raises:
-            MalformedHeaderError: If the `Digest` header is malformed. E.g. missing `=` or empty algorithm or digest.
-            UnacceptableAlgorithmError: If the `Digest` header contains an algorithm with a qvalue of 0.0.
             RuntimeError: If the `cksum` command is not found on the system or if the command fails when using UNIXCKSUM.
 
         """
@@ -104,7 +102,26 @@ class DigestHeaderAlgorithm(Enum):
                 ),
             )
 
-        provided_digests = _parse_digest_header(digest_header, qvalues)
+        try:
+            provided_digests = _parse_digest_header(digest_header, qvalues)
+        except MalformedHeaderError:
+            return (
+                False,
+                HeaderShouldBeAdded(
+                    "Want-Digest",
+                    _make_wants_digest_header(qvalues),
+                    error_description="Malformed Digest header",
+                ),
+            )
+        except UnacceptableAlgorithmError as e:
+            return (
+                False,
+                HeaderShouldBeAdded(
+                    "Want-Digest",
+                    _make_wants_digest_header(qvalues),
+                    error_description=str(e),
+                ),
+            )
         if not provided_digests:
             # In the case no known algorithm was provided, we also want to inform the client what we want.
             return (

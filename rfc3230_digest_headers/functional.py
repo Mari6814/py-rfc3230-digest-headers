@@ -70,8 +70,6 @@ def verify_digest(
         Server: valid, want_digest = verify_digest(request_headers, instance)
 
     Raises:
-        MalformedHeaderError: If the Digest header is malformed.
-        UnacceptableAlgorithmError: If the Digest header contains an algorithm with a qvalue of 0.0.
         RuntimeError: If the cksum command is not found or fails for UNIXCKSUM.
 
     """
