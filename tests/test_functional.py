@@ -33,9 +33,9 @@ def test_create_digest_with_want_digest():
     header = create_digest(data, want_digest_header)
     assert header.header_name == "Digest"
     assert "sha-256=" in header.header_value
-    assert (
-        "md5=" not in header.header_value
-    ), 'because of "auto" mode, only the best algorithm is chosen'
+    assert "md5=" not in header.header_value, (
+        'because of "auto" mode, only the best algorithm is chosen'
+    )
     assert "unknownalg=" not in header.header_value, "unknown algorithms are ignored"
 
 
