@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rfc3230-digest-headers"
-version = "1.1.0"
+version = "1.1.1"
 description = "Implementation of the Digest HTTP headers according to RFC 3230."
 readme = "README.md"
 requires-python = ">=3.10"
