@@ -2,7 +2,6 @@
 
 import base64
 import hashlib
-import shutil
 import subprocess
 from collections.abc import Sequence
 from enum import Enum
@@ -453,11 +452,8 @@ def _bsdcksum(data: bytes) -> str:
         RuntimeError: If the `cksum` command is not found on the system or if the command fails.
 
     """
-    if shutil.which("cksum") is None:
-        raise RuntimeError("cksum command not found. Cannot compute UNIXCKSUM.")
-
     proc = subprocess.run(
-        ["cksum"],
+        ["/usr/bin/cksum"],
         input=data,
         capture_output=True,
         check=True,

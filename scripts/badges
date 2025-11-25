@@ -9,6 +9,7 @@ uv run --with pybadges --with setuptools -m pybadges --left-text Python --right-
 
 # Coverage badge
 uv sync --dev --all-extras
-coverage run --source rfc3230_http_digest_headers --module pytest -v tests/
-COVERAGE_PERCENT=$(uv run -m coverage json --pretty-print -o - | jq '.totals.percent_covered_display' | tr -d '"%')
+uv run --with coverage coverage run --source rfc3230_digest_headers -m pytest -v tests/
+uv run --with coverage coverage report -m
+COVERAGE_PERCENT=$(uv run --with coverage coverage json --pretty-print -o - | jq '.totals.percent_covered_display' | tr -d '"%')
 uv run --with pybadges --with setuptools -m pybadges --left-text Coverage --right-color green --right-text "${COVERAGE_PERCENT}%" > badges/coverage.svg
